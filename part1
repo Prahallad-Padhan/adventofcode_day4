@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX 1000
+
+// Word to search
+const char *WORD = "XMAS";
+const int WORD_LEN = 4;
+
+// Directions for moving in the grid
+int dx[] = {0, 1, 1, 1, 0, -1, -1, -1};
+int dy[] = {1, 1, 0, -1, -1, -1, 0, 1};
+
+// Function to check if a word exists in a specific direction
+int checkDirection(char grid[MAX][MAX], int rows, int cols, int x, int y, int dir) {
+    for (int i = 0; i < WORD_LEN; i++) {
+        int nx = x + i * dx[dir];
+        int ny = y + i * dy[dir];
+
+        // Check bounds
+        if (nx < 0 || nx >= rows || ny < 0 || ny >= cols) {
+            return 0;
+        }
+
+        if (grid[nx][ny] != WORD[i]) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+// Function to count occurrences of the word in the grid
+int countWord(char grid[MAX][MAX], int rows, int cols) {
+    int count = 0;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            // Check in all 8 possible directions
+            for (int dir = 0; dir < 8; dir++) {
+                if (checkDirection(grid, rows, cols, i, j, dir)) {
+                    count++;
+                }
+            }
+        }
+    }
+
+    return count;
+}
+
+int main() {
+    char grid[MAX][MAX];
+    int rows = 0, cols = 0;
+    FILE *file = fopen("input.txt", "r");
+
+    if (!file) {
+        printf("Error: Could not open\n");
+        return 1;
+    }
+
+    // Read the grid from the file
+    while (fgets(grid[rows], MAX, file)) {
+        // Remove newline character if present
+        grid[rows][strcspn(grid[rows], "\n")] = '\0';
+        rows++;
+    }
+    fclose(file);
+
+    cols = strlen(grid[0]); // Assuming all rows are of equal length
+
+    int result = countWord(grid, rows, cols);
+
+    printf("The word '%s' appears %d times in the grid.\n", WORD, result);
+
+    return 0;
+}
