@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_SIZE 1000  // Maximum size for the 2D array
+
+// Function to read the file into a 2D character array
+int readFileToArray(const char *filename, char grid[MAX_SIZE][MAX_SIZE], int *rows, int *cols) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("Error opening file");
+        return 0;
+    }
+
+    *rows = 0;
+    *cols = 0;
+    char line[MAX_SIZE];
+    while (fgets(line, sizeof(line), file)) {
+        line[strcspn(line, "\n")] = '\0';  // Remove newline character
+        strcpy(grid[*rows], line);
+        if (*cols == 0) {
+            *cols = strlen(line);
+        }
+        (*rows)++;
+    }
+
+    fclose(file);
+    return 1;
+}
+
+// Function to check if an "X" pattern is formed
+int isXPattern(char grid[MAX_SIZE][MAX_SIZE], int x, int y, int rows, int cols) {
+    // Check bounds and patterns in all diagonal directions
+    if (x > 0 && x < rows - 1 && y > 0 && y < cols - 1) {
+        if (grid[x - 1][y - 1] == 'M' && grid[x][y] == 'A' && grid[x + 1][y + 1] == 'S' &&
+            ((grid[x - 1][y + 1] == 'M' && grid[x + 1][y - 1] == 'S')||(grid[x - 1][y + 1] == 'S' && grid[x + 1][y - 1] == 'M'))) {
+            return 1;
+        }
+        if (grid[x - 1][y - 1] == 'S' && grid[x][y] == 'A' && grid[x + 1][y + 1] == 'M' &&
+            ((grid[x - 1][y + 1] == 'M' && grid[x + 1][y - 1] == 'S')||(grid[x - 1][y + 1] == 'S' && grid[x + 1][y - 1] == 'M'))) {
+            return 1;
+        }
+
+    
+    }
+    return 0;
+}
+
+int main() {
+    char grid[MAX_SIZE][MAX_SIZE];
+    int rows = 0, cols = 0;
+
+    // Read the input file
+    if (!readFileToArray("input.txt", grid, &rows, &cols)) {
+        return 1;
+    }
+
+    int count = 0;
+
+    // Traverse the grid
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (isXPattern(grid, i, j, rows, cols)) {
+                count++;
+            }
+        }
+    }
+
+    // Print the result
+    printf("Number of X-shaped MAS patterns: %d\n", count);
+
+    return 0;
+}
